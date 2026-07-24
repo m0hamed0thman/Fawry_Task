@@ -87,6 +87,16 @@ class SeatbeltRule implements Rule{
     }
 }
 
+class MinSpeedRule implements Rule{
+    final int Minspeed = 20 ;
+    @Override
+    public observation checkViolation(vehicle v) {
+        if (v.speed < this.Minspeed)
+            return new observation(50, v.plate_number, "Slow_Speed", "speed of " + v.speed + " Too Slow allowed " + this.Minspeed + " : ");
+        return null;
+    }
+}
+
 
 class QuRadar{
     HashMap<String, Integer> fines = new HashMap<>();
@@ -147,6 +157,7 @@ class Main {
         QuRadar radar = new QuRadar();
         radar.add_Rule(new SeatbeltRule());
         radar.add_Rule(new SpeedRule());
+        radar.add_Rule(new MinSpeedRule());
 
         // Speeding + no seatbelt -> should get fined for both (400 EGP)
         System.out.println("--- Test 1: private car, speed 102, no seatbelt ---");
@@ -166,6 +177,11 @@ class Main {
         // Different vehicle type -> should use the truck speed limit, not the private car one
         System.out.println("--- Test 4: speeding truck ---");
         radar.Check_vehicle(new Truck("TRK555", 75, true));
+
+        // A car driving too slowly -> should trigger MinSpeedRule (50 EGP)
+        System.out.println("\n--- Test 5: private car driving too slowly (speed 10) ---");
+        radar.Check_vehicle(new Private("SLW111", 10, true));
+
 
         // Totals across every check we did above
         System.out.println("===================================");
